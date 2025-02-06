@@ -134,7 +134,7 @@ func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
 		openai.ModelGPT_4, openai.ModelGPT_4_0314,
 		openai.ModelGPT_4_32K, openai.ModelGPT_4_32K_0314,
 		openai.ModelGPT_4_Turbo, openai.ModelGPT_4_1106_Preview,
-		openai.ModelQwenMax:
+		openai.ModelQwenMax, "deepseek-chat", "deepseek-reasoner":
 		// chat
 		currentMessageLength := 0
 		messages := []openai.CreateChatCompletionMessage{}
@@ -168,7 +168,7 @@ func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
 		Model:       cfg.Model,
 		Prompt:      questionX,
 		MaxTokens:   maxTokens,
-		Temperature: float64(cfg.MaxRequestResponseTokens),
+		Temperature: cfg.Temperature,
 	})
 	if err != nil {
 		return nil, err
