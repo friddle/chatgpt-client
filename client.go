@@ -168,7 +168,7 @@ func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
 		Model:       cfg.Model,
 		Prompt:      questionX,
 		MaxTokens:   maxTokens,
-		Temperature: float64(cfg.MaxRequestResponseTokens),
+		Temperature: float64(cfg.Temperature),
 	})
 	if err != nil {
 		return nil, err
