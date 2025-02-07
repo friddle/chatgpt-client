@@ -138,6 +138,10 @@ func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
 		// chat
 		currentMessageLength := 0
 		messages := []openai.CreateChatCompletionMessage{}
+                messages = append(messages, openai.CreateChatCompletionMessage{
+		   Role:    "system",
+		   Content: cfg.Prompt,
+	        })
 		for _, msg := range cfg.Messages {
 			currentMessageLength += len(msg.Text)
 			messages = append(messages, openai.CreateChatCompletionMessage{
@@ -145,7 +149,6 @@ func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
 				Content: msg.Text,
 			})
 		}
-
 		maxTokens := calculationPromptMaxTokens(currentMessageLength, cfg.MaxRequestResponseTokens, c.cfg.MaxResponseTokens)
 		completion, err := c.core.CreateChatCompletion(&openai.CreateChatCompletionRequest{
 			Model:       cfg.Model,
