@@ -129,6 +129,10 @@ func (c *client) AskChatCompeletion(cfg *AskConfig) (answer []byte, err error) {
 	// chat
 	currentMessageLength := 0
 	messages := []openai.CreateChatCompletionMessage{}
+	messages = append(messages, openai.CreateChatCompletionMessage{
+		Role:    "system",
+		Content: cfg.Prompt,
+	})
 	for _, msg := range cfg.Messages {
 		currentMessageLength += len(msg.Text)
 		messages = append(messages, openai.CreateChatCompletionMessage{

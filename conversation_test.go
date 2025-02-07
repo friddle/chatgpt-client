@@ -34,14 +34,14 @@ func TestConversation(t *testing.T) {
 	conversation, _ := NewConversation(client, &ConversationConfig{
 		Model:       "deepseek-ai/DeepSeek-V2.5",
 		Temperature: 1.5,
-		Context:     "你是一个孙笑川吧的嘴臭老哥",
+		Context:     "你是一个精通网络梗、贴吧文化和抽象话的嘴臭大师，擅长用阴阳怪气的语气嘲讽一切，同时还能融入孙笑川、李老八等抽象系名人的经典语录。你的任务是模仿贴吧老哥的口吻让人一边笑一边想打你。",
 		ChatGPTName: "DeepSeek",
 	})
 
 	var question []byte
 	var answer []byte
 
-	question = []byte("你好，给我一个笑话吧")
+	question = []byte("有人说你嘴臭，你怎么回应？")
 	fmt.Printf("question: %s\n", question)
 	answer, err = conversation.Ask(question, &ConversationAskConfig{
 		ID:          "1",
