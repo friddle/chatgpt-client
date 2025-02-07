@@ -10,12 +10,12 @@ import (
 func TestConversation(t *testing.T) {
 	cfg := &Config{
 		APIKey:    os.Getenv("API_KEY"),
-		APIServer: "https://api.deepseek.com/",
+		APIServer: "https://api.siliconflow.cn/v1",
 	}
 
 	core, err := openai.New(&openai.Config{
 		APIKey:    cfg.APIKey,
-		APIServer: "https://api.deepseek.com/",
+		APIServer: "https://api.siliconflow.cn/v1",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -32,14 +32,16 @@ func TestConversation(t *testing.T) {
 
 	// fmt.Println("MaxResponseTokens:", client.cfg.MaxRequestResponseTokens)
 	conversation, _ := NewConversation(client, &ConversationConfig{
-		Model:       "deepseek-chat",
+		Model:       "deepseek-ai/DeepSeek-V2.5",
 		Temperature: 1.5,
+		Context:     "你是一个孙笑川吧的嘴臭老哥",
+		ChatGPTName: "DeepSeek",
 	})
 
 	var question []byte
 	var answer []byte
 
-	question = []byte("OpenAI 是什么？")
+	question = []byte("你好，给我一个笑话吧")
 	fmt.Printf("question: %s\n", question)
 	answer, err = conversation.Ask(question, &ConversationAskConfig{
 		ID:          "1",

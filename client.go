@@ -125,56 +125,53 @@ func New(cfg *Config) (Client, error) {
 	}, nil
 }
 
-func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
-	// numTokens := float64(len(question))
-	// maxTokens := math.Max(float64(c.cfg.MaxResponseTokens), math.Min(openai.MaxTokens-numTokens, float64(c.cfg.MaxResponseTokens)))
-
-	switch cfg.Model {
-	case openai.ModelGPT3_5Turbo, openai.ModelGPT3_5Turbo0301,
-		openai.ModelGPT_4, openai.ModelGPT_4_0314,
-		openai.ModelGPT_4_32K, openai.ModelGPT_4_32K_0314,
-		openai.ModelGPT_4_Turbo, openai.ModelGPT_4_1106_Preview,
-		openai.ModelQwenMax,"deepseek-reasoner","deepseek-chat":
-		// chat
-		currentMessageLength := 0
-		messages := []openai.CreateChatCompletionMessage{}
-		for _, msg := range cfg.Messages {
-			currentMessageLength += len(msg.Text)
-			messages = append(messages, openai.CreateChatCompletionMessage{
-				Role:    msg.Role,
-				Content: msg.Text,
-			})
-		}
-
-		maxTokens := calculationPromptMaxTokens(currentMessageLength, cfg.MaxRequestResponseTokens, c.cfg.MaxResponseTokens)
-		completion, err := c.core.CreateChatCompletion(&openai.CreateChatCompletionRequest{
-			Model:       cfg.Model,
-			Messages:    messages,
-			MaxTokens:   maxTokens,
-			Temperature: cfg.Temperature,
+func (c *client) AskChatCompeletion(cfg *AskConfig) (answer []byte, err error) {
+	// chat
+	currentMessageLength := 0
+	messages := []openai.CreateChatCompletionMessage{}
+	for _, msg := range cfg.Messages {
+		currentMessageLength += len(msg.Text)
+		messages = append(messages, openai.CreateChatCompletionMessage{
+			Role:    msg.Role,
+			Content: msg.Text,
 		})
-		if err != nil {
-			return nil, err
-		}
-
-		return []byte(strings.TrimSpace(completion.Choices[0].Message.Content)), nil
 	}
 
-	// prompt
-	questionX := cfg.Prompt
-	maxTokens := calculationPromptMaxTokens(len(questionX), cfg.MaxRequestResponseTokens, c.cfg.MaxResponseTokens)
-
-	completion, err := c.core.CreateCompletion(&openai.CreateCompletionRequest{
+	maxTokens := calculationPromptMaxTokens(currentMessageLength, cfg.MaxRequestResponseTokens, c.cfg.MaxResponseTokens)
+	completion, err := c.core.CreateChatCompletion(&openai.CreateChatCompletionRequest{
 		Model:       cfg.Model,
-		Prompt:      questionX,
+		Messages:    messages,
+		Stream:      false,
 		MaxTokens:   maxTokens,
 		Temperature: cfg.Temperature,
 	})
 	if err != nil {
 		return nil, err
 	}
+	return []byte(strings.TrimSpace(completion.Choices[0].Message.Content)), nil
+}
 
-	return []byte(strings.TrimSpace(completion.Choices[0].Text)), nil
+func (c *client) Ask(cfg *AskConfig) (answer []byte, err error) {
+	// numTokens := float64(len(question))
+	// maxTokens := math.Max(float64(c.cfg.MaxResponseTokens), math.Min(openai.MaxTokens-numTokens, float64(c.cfg.MaxResponseTokens)))
+
+	if strings.Contains(cfg.Model, "deepseek") {
+		return c.AskChatCompeletion(cfg)
+	} else {
+		// prompt
+		questionX := cfg.Prompt
+		maxTokens := calculationPromptMaxTokens(len(questionX), cfg.MaxRequestResponseTokens, c.cfg.MaxResponseTokens)
+		completion, err := c.core.CreateCompletion(&openai.CreateCompletionRequest{
+			Model:       cfg.Model,
+			Prompt:      questionX,
+			MaxTokens:   maxTokens,
+			Temperature: cfg.Temperature,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return []byte(strings.TrimSpace(completion.Choices[0].Text)), nil
+	}
 }
 
 func (c *client) GetOrCreateConversation(id string, cfg *ConversationConfig) (conversation Conversation, err error) {

@@ -132,7 +132,7 @@ func (c *conversation) Ask(question []byte, cfg ...*ConversationAskConfig) (answ
 	c.messages.Push(&Message{
 		ID:             cfgX.ID,
 		Text:           string(question),
-		IsChatGPT:      false,
+		IsChatGPT:      true,
 		ConversationID: c.id,
 		User:           cfgX.User,
 		Role:           "user",
@@ -155,13 +155,11 @@ func (c *conversation) Ask(question []byte, cfg ...*ConversationAskConfig) (answ
 	}
 
 	answer, err = c.client.Ask(&AskConfig{
-		Model:    c.cfg.Model,
-		Prompt:   string(prompt),
-		Messages: messages,
-		//
+		Model:                    c.cfg.Model,
+		Prompt:                   string(prompt),
+		Messages:                 messages,
 		MaxRequestResponseTokens: int(c.cfg.MaxRequestResponseTokens),
-		//
-		Temperature: temperature,
+		Temperature:              temperature,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to ask: %v", err)
